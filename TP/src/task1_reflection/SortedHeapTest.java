@@ -1,3 +1,5 @@
+package task1_reflection;
+
 public class SortedHeapTest {
     @org.junit.Test
     public void testAdd() {

@@ -1,3 +1,5 @@
+package task1_reflection;
+
 interface Heap<E extends Comparable<E>> {
   void add(E elem);   // Добавляет элемент в кучу.
   E first();          // Выдает элемент из кучи с максимальным 

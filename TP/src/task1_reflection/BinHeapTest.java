@@ -1,3 +1,5 @@
+package task1_reflection;
+
 import org.junit.Test;
 
 public class BinHeapTest {

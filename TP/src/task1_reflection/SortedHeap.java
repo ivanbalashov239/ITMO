@@ -1,3 +1,5 @@
+package task1_reflection;
+
 public class SortedHeap<E extends Comparable<E>> implements Heap<E> {
     private Comparable array[];
     private int last = 0;

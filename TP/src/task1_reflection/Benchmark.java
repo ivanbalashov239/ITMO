@@ -1,3 +1,5 @@
+package task1_reflection;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
@@ -16,7 +18,7 @@ public class Benchmark {
         }
 
         System.out.println("----------------------------------------------" +
-                           "Benchmark for " + className +
+                           "task1_reflection.Benchmark for " + className +
                            "----------------------------------------------");
 
         long time;
