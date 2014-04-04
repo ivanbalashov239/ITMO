@@ -253,7 +253,7 @@ public class Converter extends JFrame {
     /**
      * Class for reading data in background
      */
-    private class Reader extends SwingWorker<List<Entity>, Objects> {
+    private class Reader extends SwingWorker<Integer, Objects> {
         Scanner scnr;
         List<Entity> list;
         JComboBox<Entity> cbox;
@@ -270,29 +270,15 @@ public class Converter extends JFrame {
          * @throws Exception
          */
         @Override
-        protected List<Entity> doInBackground() throws Exception {
-            list = new ArrayList<>();
+        protected Integer doInBackground() throws Exception {
             while (scnr.hasNext()) {
-                list.add(parse(scnr.nextLine()));
+                Entity e = parse(scnr.nextLine());
+                dataList.add(e);//Add data to main list
+                cbox.addItem(e);//Add item to cbox
+                pack();
             }
 //            Thread.sleep(10000);
-            return list;
-        }
-
-        /**
-         * Finally add all new data to GUI
-         */
-        @Override
-        protected void done() {
-            try {
-                for (Entity i : list) {
-                    dataList.add(i);//Add data to main list
-                    cbox.addItem(i);//Add item to cbox
-                    pack();
-                }
-            } catch (Exception e) {
-                // ignore
-            }
+            return 0;
         }
     }
 }
