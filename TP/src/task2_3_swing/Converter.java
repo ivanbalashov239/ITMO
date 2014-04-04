@@ -12,7 +12,7 @@ import java.util.List;
 public class Converter extends JFrame {
     //Data
     private static java.util.List<Entity> dataList = new ArrayList<>();
-    Scanner scnr;
+    Scanner scnr ;
 
     /**
      * Default constructor
@@ -20,7 +20,7 @@ public class Converter extends JFrame {
     private Converter() {
         super("Расчет стоимости топлива");
         try {
-            read(new File("resources/data.input"));
+            scnr = new Scanner(new File("resources/data.input"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "File not found", "Error", JOptionPane.ERROR_MESSAGE);
@@ -42,23 +42,15 @@ public class Converter extends JFrame {
     }
 
     /**
-     * Read input file
-     */
-    private void read(File file) throws FileNotFoundException {
-        //Simply read data
-        scnr = new Scanner(file);
-        for (int i = 0; i<2 && scnr.hasNext(); i++){
-            dataList.add(parse(scnr.nextLine()));//Build data object and add to data list
-        }
-    }
-
-    /**
      * Creates and show GUI
      */
     private void createAndShowGUI() {
         JPanel mainPane = new JPanel(new GridBagLayout()); //Main panel, all content should be here
         GridBagConstraints c = new GridBagConstraints(); //To add components
         c.insets = new Insets(2,2,2,2); //Cell padding
+
+        final JComboBox<Entity> markCBox = new JComboBox<>(); //Combo box to choose mark
+        new Reader(scnr, markCBox).execute();
 
         //---- ADDING COMPONENTS----
         //Col 1
@@ -68,7 +60,7 @@ public class Converter extends JFrame {
         JLabel markLbl = new JLabel("Марка автомобиля"); //Mark of auto label
         c.gridy = 0;
         mainPane.add(markLbl, c);
-        final JLabel fuelTypeLbl = new JLabel("Стоимость " + dataList.get(0).getFuelTypeLabel()); //Fuel cost label. Set default type
+        final JLabel fuelTypeLbl = new JLabel(); //Fuel cost label. Set default type
         c.gridy = 1;
         mainPane.add(fuelTypeLbl, c);
         JLabel mileageLbl = new JLabel("Годовой пробег"); //Annual mileage label
@@ -82,7 +74,7 @@ public class Converter extends JFrame {
         //c.anchor = GridBagConstraints.CENTER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 1;
-        final JComboBox<Entity> markCBox = new JComboBox<>(); //Combo box to choose mark
+//        final JComboBox<Entity> markCBox = new JComboBox<>(); //Combo box to choose mark
         c.gridy = 0;
         mainPane.add(markCBox, c);
         final JTextField mileageFld = new JTextField(); //Mileage field
@@ -109,13 +101,6 @@ public class Converter extends JFrame {
         c.gridy = 2;
         mainPane.add(mileageAmountLbl, c);
 
-        //Init CBox
-        for (Entity i : dataList) {
-            markCBox.addItem(i);
-        }
-        if (scnr.hasNext()) {// If have more data then read in bg
-            new Reader(scnr, markCBox).execute();
-        }
 
         //---- ADDING LISTENERS ----
         markCBox.addActionListener(new ActionListener() { //Choose mark
