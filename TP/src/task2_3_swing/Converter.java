@@ -1,4 +1,4 @@
-package task2_swing;
+package task2_3_swing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,14 +7,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.List;
 
 public class Converter extends JFrame {
     //Data
-    //OLD
-//    private static java.util.List<String> markList = new ArrayList<>();
-//    private static java.util.List<Double> fuelMileageList = new ArrayList<>();
-//    private static java.util.List<String> fuelTypeList = new ArrayList<>();
     private static java.util.List<Entity> dataList = new ArrayList<>();
+    Scanner scnr;
 
     /**
      * Default constructor
@@ -22,7 +20,7 @@ public class Converter extends JFrame {
     private Converter() {
         super("Расчет стоимости топлива");
         try {
-            parse(new File("resources/data.input"));
+            read(new File("resources/data.input"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "File not found", "Error", JOptionPane.ERROR_MESSAGE);
@@ -44,45 +42,13 @@ public class Converter extends JFrame {
     }
 
     /**
-     * Parse input file
+     * Read input file
      */
-    private void parse(File file) throws FileNotFoundException {
+    private void read(File file) throws FileNotFoundException {
         //Simply read data
-        Scanner scnr = new Scanner(file);
-        while (scnr.hasNext()) {
-            String line = scnr.nextLine();
-            String split[] = line.split("\t");//Split by tabs
-            String mark = split[2];
-            double mileage = 0;
-            try {
-                mileage = Double.parseDouble(split[1]);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Bad input data", "Error", JOptionPane.ERROR_MESSAGE);
-                System.exit(-1);
-            }
-            //Generate lables for fuel type
-            String fuelType;
-            switch (split[0]) {
-                case "92":
-                    fuelType = "92 бензина";
-                    break;
-                case "95":
-                    fuelType = "95 бензина";
-                    break;
-                case "98":
-                    fuelType ="98 бензина";
-                    break;
-                case "ДТ":
-                    fuelType = "диз. топлива";
-                    break;
-                default:
-                    fuelType = "unknown type";
-                    JOptionPane.showMessageDialog(null, "Bad input data", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.exit(-1);
-                    break;
-            }
-
-            dataList.add(new Entity(mark, mileage, fuelType));//Build data object and add to data list
+        scnr = new Scanner(file);
+        for (int i = 0; i<2 && scnr.hasNext(); i++){
+            dataList.add(parse(scnr.nextLine()));//Build data object and add to data list
         }
     }
 
@@ -102,7 +68,7 @@ public class Converter extends JFrame {
         JLabel markLbl = new JLabel("Марка автомобиля"); //Mark of auto label
         c.gridy = 0;
         mainPane.add(markLbl, c);
-        final JLabel fuelTypeLbl = new JLabel("Стоимость " + dataList.get(0)); //Fuel cost label. Set default type
+        final JLabel fuelTypeLbl = new JLabel("Стоимость " + dataList.get(0).getFuelTypeLabel()); //Fuel cost label. Set default type
         c.gridy = 1;
         mainPane.add(fuelTypeLbl, c);
         JLabel mileageLbl = new JLabel("Годовой пробег"); //Annual mileage label
@@ -147,6 +113,9 @@ public class Converter extends JFrame {
         for (Entity i : dataList) {
             markCBox.addItem(i);
         }
+        if (scnr.hasNext()) {// If have more data then read in bg
+            new Reader(scnr, markCBox).execute();
+        }
 
         //---- ADDING LISTENERS ----
         markCBox.addActionListener(new ActionListener() { //Choose mark
@@ -169,7 +138,7 @@ public class Converter extends JFrame {
                         //Check input
                         if (cost > 0 && mileage > 0) {
                             //Calculate ant set output result
-                            output.setText(cost * mileage * currentItem.getMileage() + " руб.");
+                            output.setText((cost * mileage * currentItem.getMileage() / 100) + " руб.");
                         } else { //If input is negative
                             JOptionPane.showMessageDialog(null, "Вводимые вами числа должны быть положительны.",
                                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -212,6 +181,46 @@ public class Converter extends JFrame {
     }
 
     /**
+     * Parse input string and build entity object
+     * @param line  Input line
+     * @return  Entity object
+     */
+    private Entity parse(String line) {
+        String split[] = line.split("\t");//Split by tabs
+        String mark = split[2];
+        double mileage = 0;
+        try {
+            mileage = Double.parseDouble(split[1]);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Bad input data", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(-1);
+        }
+        //Generate lables for fuel type
+        String fuelType;
+        switch (split[0]) {
+            case "92":
+                fuelType = "92 бензина";
+                break;
+            case "95":
+                fuelType = "95 бензина";
+                break;
+            case "98":
+                fuelType = "98 бензина";
+                break;
+            case "ДТ":
+                fuelType = "диз. топлива";
+                break;
+            default:
+                fuelType = "unknown type";
+                JOptionPane.showMessageDialog(null, "Bad input data", "Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(-1);
+                break;
+        }
+
+        return new Entity(mark, mileage, fuelType);
+    }
+
+    /**
      * Entity class to avoid Strings in Combo Box and list combinations
      */
     private class Entity{
@@ -238,6 +247,52 @@ public class Converter extends JFrame {
         @Override
         public String toString() {
             return mark;
+        }
+    }
+
+    /**
+     * Class for reading data in background
+     */
+    private class Reader extends SwingWorker<List<Entity>, Objects> {
+        Scanner scnr;
+        List<Entity> list;
+        JComboBox<Entity> cbox;
+
+        private Reader(Scanner scnr, JComboBox<Entity> cbox) {
+            this.scnr = scnr;
+            this.cbox = cbox;
+        }
+
+
+        /**
+         * Read data from scanner stream
+         * @return  new data
+         * @throws Exception
+         */
+        @Override
+        protected List<Entity> doInBackground() throws Exception {
+            list = new ArrayList<>();
+            while (scnr.hasNext()) {
+                list.add(parse(scnr.nextLine()));
+            }
+//            Thread.sleep(10000);
+            return list;
+        }
+
+        /**
+         * Finally add all new data to GUI
+         */
+        @Override
+        protected void done() {
+            try {
+                for (Entity i : list) {
+                    dataList.add(i);//Add data to main list
+                    cbox.addItem(i);//Add item to cbox
+                    pack();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
 }
