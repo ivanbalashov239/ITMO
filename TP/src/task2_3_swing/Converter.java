@@ -11,8 +11,9 @@ import java.util.List;
 
 public class Converter extends JFrame {
     //Data
-    private static java.util.List<Entity> dataList = new ArrayList<>();
+    //private static java.util.List<Entity> dataList = new ArrayList<>();
     Scanner scnr ;
+    public JComboBox<Entity> markCBox; // To use in process method
 
     /**
      * Default constructor
@@ -49,8 +50,8 @@ public class Converter extends JFrame {
         GridBagConstraints c = new GridBagConstraints(); //To add components
         c.insets = new Insets(2,2,2,2); //Cell padding
 
-        final JComboBox<Entity> markCBox = new JComboBox<>(); //Combo box to choose mark
-        new Reader(scnr, markCBox).execute();
+        markCBox = new JComboBox<>(); //Combo box to choose mark
+        new Reader().execute();
 
         //---- ADDING COMPONENTS----
         //Col 1
@@ -238,17 +239,7 @@ public class Converter extends JFrame {
     /**
      * Class for reading data in background
      */
-    private class Reader extends SwingWorker<Integer, Objects> {
-        Scanner scnr;
-        List<Entity> list;
-        JComboBox<Entity> cbox;
-
-        private Reader(Scanner scnr, JComboBox<Entity> cbox) {
-            this.scnr = scnr;
-            this.cbox = cbox;
-        }
-
-
+    private class Reader extends SwingWorker<Integer, Entity> {
         /**
          * Read data from scanner stream
          * @return  new data
@@ -257,13 +248,22 @@ public class Converter extends JFrame {
         @Override
         protected Integer doInBackground() throws Exception {
             while (scnr.hasNext()) {
-                Entity e = parse(scnr.nextLine());
-                dataList.add(e);//Add data to main list
-                cbox.addItem(e);//Add item to cbox
+                publish(parse(scnr.nextLine()));
+                Thread.sleep(1000);//Get data from far far away
+            }
+            return 0;
+        }
+
+        /**
+         * Method to add new element in GUI
+         * @param e
+         */
+        @Override
+        protected void process(List<Entity> e) {
+            for (Entity en : e) {
+                markCBox.addItem(en);
                 pack();
             }
-//            Thread.sleep(10000);
-            return 0;
         }
     }
 }
