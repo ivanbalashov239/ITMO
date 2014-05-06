@@ -29,7 +29,7 @@ p{
 #contentwrap {
 	display: table;
 	margin: 10px;
-	background: #fff;
+	border-spacing: 10px;
 }
 
 #sidebar {
