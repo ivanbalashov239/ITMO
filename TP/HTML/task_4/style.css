@@ -1,4 +1,5 @@
 body {
+	position: absolute;
 	background: #474747 url(bg.png);
 	padding: 0;
 	margin: 0;
@@ -27,6 +28,7 @@ p{
 }
 
 #contentwrap {
+	position: relative;
 	display: table;
 	margin: 10px;
 	border-spacing: 10px;
