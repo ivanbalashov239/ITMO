@@ -88,6 +88,8 @@ var rectangles;
 
 //Init
 function initNewGame(){
+  counter = 0;
+  startTime = Date.now();
   rectangles = new Array();
   for (var i=0; i<20; i++){
     rectangles.push(new rectangle());
