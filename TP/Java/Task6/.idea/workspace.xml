@@ -26,16 +26,11 @@
       <file leaf-file-name="MinimalServlets.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MinimalServlets.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.1995134" vertical-offset="155" max-vertical-offset="828">
-              <caret line="160" column="127" selection-start-line="160" selection-start-column="127" selection-end-line="160" selection-end-column="127" />
+            <state vertical-scroll-proportion="-4.9927006" vertical-offset="2268" max-vertical-offset="4734">
+              <caret line="12" column="103" selection-start-line="12" selection-start-column="103" selection-end-line="12" selection-end-column="103" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#798#825#0" expanded="true" />
-                <element signature="method#doGet#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-                <element signature="method#doPost#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-                <element signature="method#doPut#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-                <element signature="method#doDelete#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-                <element signature="class#Entity#0;class#MinimalServlets#0" expanded="false" />
+                <element signature="e#983#1010#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -413,12 +408,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#798#825#0" expanded="true" />
-            <element signature="method#doGet#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="method#doPost#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="method#doPut#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="method#doDelete#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="class#Entity#0;class#MinimalServlets#0" expanded="false" />
+            <element signature="e#983#1010#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -473,16 +463,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MinimalServlets.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.1995134" vertical-offset="155" max-vertical-offset="828">
-          <caret line="160" column="127" selection-start-line="160" selection-start-column="127" selection-end-line="160" selection-end-column="127" />
+        <state vertical-scroll-proportion="-4.9927006" vertical-offset="2268" max-vertical-offset="4734">
+          <caret line="12" column="103" selection-start-line="12" selection-start-column="103" selection-end-line="12" selection-end-column="103" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#798#825#0" expanded="true" />
-            <element signature="method#doGet#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="method#doPost#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="method#doPut#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="method#doDelete#0;class#Squares#0;class#MinimalServlets#0" expanded="false" />
-            <element signature="class#Entity#0;class#MinimalServlets#0" expanded="false" />
+            <element signature="e#983#1010#0" expanded="true" />
           </folding>
         </state>
       </provider>
