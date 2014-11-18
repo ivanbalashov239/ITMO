@@ -1,6 +1,3 @@
-import java.util.HashMap;
-import java.util.Map;
-
 public class NumbersDate implements SimpleDate{
     private static int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 

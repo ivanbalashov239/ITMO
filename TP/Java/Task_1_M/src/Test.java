@@ -10,8 +10,8 @@ public class Test {
 
         System.out.println(date2.from(date1));
 
-        date1 = new NumbersDate(SimpleDate.Month.NOVEMBER, 1 ,2001);
-        date2 = new NumbersDate(SimpleDate.Month.JANUARY, 19 ,2014);
+        date1 = new CalendarDate(SimpleDate.Month.NOVEMBER, 1 ,2001);
+        date2 = new CalendarDate(SimpleDate.Month.JANUARY, 19 ,2014);
 
         System.out.println(date2.from(date1));
     }
