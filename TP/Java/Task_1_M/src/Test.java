@@ -1,18 +1,47 @@
+import java.lang.reflect.InvocationTargetException;
+import java.util.Random;
+
 public class Test {
-    public static void main(String[] args) {
-        SimpleDate date1 = new NumbersDate(SimpleDate.Month.JANUARY, 21 ,2013);
-        SimpleDate date2 = new NumbersDate(SimpleDate.Month.FEBRUARY, 23 ,2013);
+    public static final long NUM_OF_TEST = 1000000;
+    private static Random rnd = new Random();
 
-        System.out.println(date2.from(date1));
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException, InstantiationException { // let program crash if smt wrong(Java way) >:}
 
-        date1 = new NumbersDate(SimpleDate.Month.JANUARY, 1 ,2001);
-        date2 = new NumbersDate(SimpleDate.Month.NOVEMBER, 19 ,2014);
+        Class<SimpleDate> simpleDateClass = (Class<SimpleDate>) Class.forName(args[0]);
 
-        System.out.println(date2.from(date1));
+        SimpleDate from;
+        SimpleDate to;
 
-        date1 = new CalendarDate(SimpleDate.Month.NOVEMBER, 1 ,2001);
-        date2 = new CalendarDate(SimpleDate.Month.JANUARY, 19 ,2014);
+        long totalTime = 0;
+        for (long i = 0; i<NUM_OF_TEST; ++i) {
 
-        System.out.println(date2.from(date1));
+            from = genDate(simpleDateClass);
+            to = genDate(simpleDateClass);
+
+            if (to.compareTo(from) < 0) {
+                SimpleDate tmp = from;
+                from = to;
+                to = tmp;
+            }
+
+            long timer = System.currentTimeMillis();
+            to.from(from);
+            timer = System.currentTimeMillis() - timer;
+
+            totalTime += timer;
+        }
+
+        System.out.printf("Summary working time of method 'int from(SimpleDate date)' of class %s in %d tests is: %d",
+                args[0], NUM_OF_TEST, totalTime);
+    }
+
+    private static SimpleDate genDate(Class<SimpleDate> simpleDateClass) throws NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
+        SimpleDate.Month month = CalendarDate.munOfNum(rnd.nextInt(12) + 1);
+        int day = rnd.nextInt(NumbersDate.daysInMonth[ CalendarDate.numOfMun(month) - 1 ]) + 1;
+        int year = rnd.nextInt(2014-1800) + 1800;
+        return simpleDateClass.getConstructor(SimpleDate.Month.class, int.class, int.class)
+                .newInstance(month, day, year);
     }
 }

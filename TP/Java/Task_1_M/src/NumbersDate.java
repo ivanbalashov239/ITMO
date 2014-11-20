@@ -1,5 +1,5 @@
 public class NumbersDate implements SimpleDate{
-    private static int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    public static final int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     private Month month;
     private int day;

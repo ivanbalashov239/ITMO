@@ -14,14 +14,15 @@ public class CalendarDate implements SimpleDate {
         if (month == null) {
             throw new IllegalArgumentException("Month should not be 'null'");
         }
-        if (!(day > 0 && day < 32)) {
+        int munNum = numOfMun(month) - 1;
+        if (!(day > 0 && day <= NumbersDate.daysInMonth[munNum])) {
             throw new IllegalArgumentException("Day should be in range of 1-31");
         }
         if (year < 0) {
             throw new IllegalArgumentException("Year should be positive");
         }
 
-        this.date = new GregorianCalendar(year, numOfMun(month), day);
+        this.date = new GregorianCalendar(year, munNum , day);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class CalendarDate implements SimpleDate {
 
     @Override
     public Month getMonth() {
-        return munOfNum(date.get(Calendar.MONTH));
+        return munOfNum(date.get(Calendar.MONTH) + 1);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class CalendarDate implements SimpleDate {
         }
     }
 
-    private Month munOfNum(int month) {
+    public static Month munOfNum(int month) {
         switch (month) {
             case 1:
                 return Month.JANUARY;
@@ -78,10 +79,12 @@ public class CalendarDate implements SimpleDate {
             case 12:
                 return Month.DECEMBER;
         }
+        int i = 0;
+
         return null;
     }
 
-    private int numOfMun(Month month) {
+    public static int numOfMun(Month month) {
         switch (month) {
             case JANUARY:
                 return 1;
@@ -113,7 +116,7 @@ public class CalendarDate implements SimpleDate {
 
     @Override
     public int compareTo(SimpleDate a) {
-        Calendar other = new GregorianCalendar(a.getYear(), numOfMun(a.getMonth()), a.getDay());
+        Calendar other = new GregorianCalendar(a.getYear(), numOfMun(a.getMonth()) - 1, a.getDay());
         return date.compareTo(other);
     }
 }
