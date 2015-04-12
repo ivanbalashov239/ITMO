@@ -1,8 +1,7 @@
-[core]
-    *.idea/
-    *.iml
-    *.swp
-    build/
-    out/
-    .gradle/
-    *.log
+.idea
+*.iml
+*.swp
+build
+out
+.gradle
+*.log
