@@ -10,79 +10,88 @@ import java.util.regex.Pattern;
  * Created by anton on 12.04.15.
  */
 public class ShuntingYard {
-    final static private String DIVIDER = ",";
-    final static private List<String> OPERATORS = new ArrayList<String>(){{
-        add("-");
-        add("+");
-        add("/");
-        add("*");
-        add("^");
-    }};
-    final static private List<String> FUNCTIONS = new ArrayList<String>(){{
-        add("sin");
-        add("cos");
-        add("exp");
-        add("ln");
-        add("lg");
-        add("tg");
-        add("ctg");
-        add("arctg");
-        add("arcctg");
-        add("log");
+    private enum Associate {LEFT, RIGHT};
+    private static final String DIVIDER = ",";
+    //private static final String ESCAPE_SET = "+*/-^";
+
+    // Map name_of_function -> function properties
+    final static private Map<String, FuncOptions> FUNCTIONS = new HashMap<String, FuncOptions>(){{
+        put("-", new FuncOptions(2, 1));
+        put("+", new FuncOptions(2, 1));
+        put("/", new FuncOptions(2, 2));
+        put("*", new FuncOptions(2, 2));
+        put("^", new FuncOptions(Associate.RIGHT, 2, 3));
+        put("sin", new FuncOptions(1));
+        put("cos", new FuncOptions(1));
+        put("exp", new FuncOptions(1));
+        put("ln", new FuncOptions(1));
+        put("lg", new FuncOptions(1));
+        put("tg", new FuncOptions(1));
+        put("ctg", new FuncOptions(1));
+        put("arctg", new FuncOptions(1));
+        put("arcctg", new FuncOptions(1));
+        put("log", new FuncOptions(2));
     }};
 
     //Split input to tokens
     static List<String> split(String input) {
-        Matcher m = Pattern.compile("(\\d+\\.?\\d*|" +
-                "\\(|\\)|\\" +
-                OPERATORS.stream().reduce((x,xs)->xs+"|\\"+x).get() + "|" +
-                FUNCTIONS.stream().reduce((x,xs)->xs+"|"+x).get() + "|\\" +
-                DIVIDER +
-                ")").matcher(input);
+        String regex =
+                "(\\d+\\.?\\d*|" +
+                "\\(|\\)|" +
+                FUNCTIONS.keySet().stream().reduce(
+                        (x, xs) -> xs + "|" + x
+                ).get() + "|\\" + DIVIDER + ")";
+        // TODO: fix it
+        regex = regex.substring(0, regex.lastIndexOf('+')) +"\\"+ regex.substring(regex.lastIndexOf("+"));
+        regex = regex.substring(0, regex.lastIndexOf('*')) +"\\"+ regex.substring(regex.lastIndexOf("*"));
+        regex = regex.substring(0, regex.lastIndexOf('^')) +"\\"+ regex.substring(regex.lastIndexOf("^"));
+
+        Matcher m = Pattern.compile(regex).matcher(input);
         List<String> inputSplit = new LinkedList<>();
         while (m.find()) {
             inputSplit.add(m.group());
+        }
+        if (Main.DEBUG) {
+            System.err.println("#Regex: " + regex);
+            System.err.println("#Split source: " + inputSplit);
         }
         return inputSplit;
     }
 
     private static boolean isOperator(String token) {
-        return OPERATORS.contains(token);
+        return FUNCTIONS.containsKey(token);
     }
-
+    private static boolean isOperatorLeft(String token) {
+        return FUNCTIONS.get(token).getAssociate().equals(Associate.LEFT);
+    }
+    private static boolean isOperatorRight(String token) {
+        return FUNCTIONS.get(token).getAssociate().equals(Associate.RIGHT);
+    }
     private static boolean isOpenBracket(String token) {
         return token.equals("(");
     }
-
     private static boolean isCloseBracket(String token) {
         return token.equals(")");
     }
-
-    private static boolean isFunc(String token) {
-        return FUNCTIONS.contains(token);
-    }
-
     private static boolean isDivider(String token) {
         return token.equals(DIVIDER);
     }
-
-    private static int getOpPriority(String op) {
-        switch (op) {
-            case "+":
-            case "-":
-                return 1;
-            case "/":
-            case "*":
-                return 2;
-            case "^":
-                return 4;
-        }
-        return 3;
+    private static int getOpPriority(String token) {
+        return FUNCTIONS.get(token).getPriority();
     }
 
-    static Queue<String> convert(String input) {
+    private static Node omnom(String token, Stack<Node> output) {
+        // TODO: Put lambda here
+        List<Node> childs = new ArrayList<>();
+        for (int i = 0; i < FUNCTIONS.get(token).getArguments(); i++) {
+            childs.add(output.pop());
+        }
+        return new Function(token, childs);
+    }
+
+    static Node convert(String input) {
         Queue<String> tokens = new ArrayDeque<>(split(input));
-        Queue<String> output = new ArrayDeque<>();
+        Stack<Node> output = new Stack<>();
         Stack<String> stack = new Stack<>();
 
         while (!tokens.isEmpty()) {
@@ -90,15 +99,17 @@ public class ShuntingYard {
 
             // If number put on output queue
             if (NumberUtils.isNumber(token)) {
-                output.add(token);
+                output.add(new Numeric(token));
             }
             // If operator
             else if (isOperator(token)) {
                 // Put operators from stack in output while we can
                 while (!stack.isEmpty() &&
-                        isOperator(stack.lastElement()) &&
-                        getOpPriority(token) <= getOpPriority(stack.lastElement())) {
-                    output.add(stack.pop());
+                        isOperator(stack.lastElement()) && (
+                        (isOperatorLeft(token) && getOpPriority(token) <= getOpPriority(stack.lastElement())) ||
+                        (isOperatorRight(token) && getOpPriority(token) < getOpPriority(stack.lastElement()))
+                        )){
+                    output.push(omnom(stack.pop(), output));
                 }
                 // Put token to stack
                 stack.push(token);
@@ -111,32 +122,78 @@ public class ShuntingYard {
             else if (isCloseBracket(token)) {
                 // Put everything belongs to '(' in output
                 while(!isOpenBracket(stack.lastElement())) {
-                    output.add(stack.pop());
+                    output.push(omnom(stack.pop(), output));
                 }
                 // Drop '(' from stack
                 stack.pop();
-                // If we'v got func on the top of a stack put it it output
-                if (isFunc(stack.lastElement())) {
-                    output.add(stack.pop());
-                }
-            }
-            // If token is function put it in stack
-            else if (isFunc(token)) {
-                stack.push(token);
             }
             // If token is divider then push in out all besides (
             else if (isDivider(token)) {
                 while (!isOpenBracket(stack.lastElement())) {
-                    output.add(stack.pop());
+                    output.add(omnom(stack.pop(), output));
                 }
             }
         }
 
         // Put tail of a stack in output
         while (!stack.isEmpty()) {
-            output.add(stack.pop());
+            output.add(omnom(stack.pop(), output));
         }
 
-        return output;
+        return output.lastElement();
+    }
+
+    /**
+     * Class with function's options
+     */
+    private static class FuncOptions {
+        private Associate associate;
+        private int arguments;
+        private int priority;
+
+        /**
+         *
+         * @param associate Function associative
+         * @param arguments Number of function arguments
+         * @param priority Function priority
+         */
+        public FuncOptions(Associate associate, int arguments, int priority) {
+            this.associate = associate;
+            this.arguments = arguments;
+            this.priority = priority;
+        }
+
+        /**
+         * Let associate be LEFT
+         * @param arguments Number of function arguments
+         * @param priority Function priority
+         */
+        public FuncOptions(int arguments, int priority) {
+            this.associate = Associate.LEFT;
+            this.arguments = arguments;
+            this.priority = priority;
+        }
+
+        /**
+         * Let assotiative be LEFT and priority MAX
+         * @param arguments
+         */
+        public FuncOptions(int arguments) {
+            this.associate = Associate.LEFT;
+            this.arguments = arguments;
+            this.priority = Integer.MAX_VALUE;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+        public Associate getAssociate() {
+            return associate;
+        }
+        public int getArguments() {
+            return arguments;
+        }
     }
 }
+
+
