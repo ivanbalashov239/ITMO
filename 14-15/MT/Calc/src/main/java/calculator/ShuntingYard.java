@@ -166,7 +166,7 @@ public class ShuntingYard {
 
         /**
          * Let associate be LEFT
-         * @param arguments Number of function arguments
+         * @param arguments Number of function's arguments
          * @param priority Function priority
          */
         public FuncOptions(int arguments, int priority) {
@@ -177,7 +177,7 @@ public class ShuntingYard {
 
         /**
          * Let assotiative be LEFT and priority MAX
-         * @param arguments
+         * @param arguments Number of function's arguments
          */
         public FuncOptions(int arguments) {
             this.associate = Associate.LEFT;
