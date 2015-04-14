@@ -7,12 +7,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by anton on 12.04.15.
+ * Calc
+ *
+ * Created by Plotnikov Anton on 12.04.15.
  */
 public class ShuntingYard {
-    private enum Associate {LEFT, RIGHT};
+    private enum Associate {LEFT, RIGHT}
     private static final String DIVIDER = ",";
-    //private static final String ESCAPE_SET = "+*/-^";
+    private static final String ESCAPE_SET = "+*^";
 
     // Map name_of_function -> function properties
     final static private Map<String, FuncOptions> FUNCTIONS = new HashMap<String, FuncOptions>(){{
@@ -35,17 +37,16 @@ public class ShuntingYard {
 
     //Split input to tokens
     static List<String> split(String input) {
+        Map<String, FuncOptions> FUNCTIONS_ESCAPED = new HashMap(FUNCTIONS);
+        FUNCTIONS.keySet().parallelStream().filter(s -> ESCAPE_SET.contains(s)).forEach(s -> {
+            FUNCTIONS_ESCAPED.put("\\" + s, FUNCTIONS.get(s));
+            FUNCTIONS_ESCAPED.remove(s);
+        });
+        if (Main.DEBUG) System.err.println("#Availible for parser functions set: " + FUNCTIONS_ESCAPED.keySet());
         String regex =
-                "(\\d+\\.?\\d*|" +
-                "\\(|\\)|" +
-                FUNCTIONS.keySet().stream().reduce(
-                        (x, xs) -> xs + "|" + x
-                ).get() + "|\\" + DIVIDER + ")";
-        // TODO: fix it
-        regex = regex.substring(0, regex.lastIndexOf('+')) +"\\"+ regex.substring(regex.lastIndexOf("+"));
-        regex = regex.substring(0, regex.lastIndexOf('*')) +"\\"+ regex.substring(regex.lastIndexOf("*"));
-        regex = regex.substring(0, regex.lastIndexOf('^')) +"\\"+ regex.substring(regex.lastIndexOf("^"));
-
+                "(\\d+\\.?\\d*|\\(|\\)|" +
+                FUNCTIONS_ESCAPED.keySet().parallelStream().reduce((x, xs) -> xs + "|" + x).get()
+                + "|\\" + DIVIDER + ")";
         Matcher m = Pattern.compile(regex).matcher(input);
         List<String> inputSplit = new LinkedList<>();
         while (m.find()) {
@@ -81,7 +82,6 @@ public class ShuntingYard {
     }
 
     private static Node omnom(String token, Stack<Node> output) {
-        // TODO: Put lambda here
         List<Node> childs = new ArrayList<>();
         for (int i = 0; i < FUNCTIONS.get(token).getArguments(); i++) {
             childs.add(output.pop());

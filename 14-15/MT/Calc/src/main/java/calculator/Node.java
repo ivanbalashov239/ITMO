@@ -3,7 +3,9 @@ package calculator;
 import java.util.List;
 
 /**
- * Created by anton on 14.04.15.
+ * Calc
+ *
+ * Created by Plotnikov Anton on 14.04.15.
  */
 public interface Node {
     List<Node> childs();

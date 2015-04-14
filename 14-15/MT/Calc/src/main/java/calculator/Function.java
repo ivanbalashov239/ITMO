@@ -3,7 +3,9 @@ package calculator;
 import java.util.List;
 
 /**
- * Created by anton on 14.04.15.
+ * Calc
+ *
+ * Created by Plotnikov Anton on 14.04.15.
  */
 public class Function implements Node{
     private final List<Node> childs;
@@ -21,11 +23,7 @@ public class Function implements Node{
 
     @Override
     public Double calculate() {
-        // TODO: Put lambda here
-        Double[] arg = new Double[childs.size()];
-        for (int i = 0; i<childs.size(); i++) {
-            arg[i] = childs.get(i).calculate();
-        }
+        Double[] arg = childs.parallelStream().map(Node::calculate).toArray(Double[]::new);
 
         switch (name) {
             case "sin":

@@ -3,7 +3,9 @@ package calculator;
 import java.util.Arrays;
 
 /**
- * Created by anton on 12.04.15.
+ * Calc
+ *
+ * Created by Plotnikov Anton on 12.04.15.
  */
 public class Main {
     public static final boolean DEBUG = false;
