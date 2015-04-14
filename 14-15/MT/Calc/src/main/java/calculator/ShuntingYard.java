@@ -1,7 +1,5 @@
 package calculator;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,6 +86,9 @@ public class ShuntingYard {
         }
         return new Function(token, childs);
     }
+    private static boolean isNumeric(String token) {
+        return Pattern.compile("^\\d+\\.?\\d*$").matcher(token).matches();
+    }
 
     static Node convert(String input) {
         Queue<String> tokens = new ArrayDeque<>(split(input));
@@ -98,7 +99,7 @@ public class ShuntingYard {
             String token = tokens.poll();
 
             // If number put on output queue
-            if (NumberUtils.isNumber(token)) {
+            if (isNumeric(token)) {
                 output.add(new Numeric(token));
             }
             // If operator
