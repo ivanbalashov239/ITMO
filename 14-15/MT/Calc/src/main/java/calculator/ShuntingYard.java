@@ -37,15 +37,15 @@ public class ShuntingYard {
 
     //Split input to tokens
     static List<String> split(String input) {
-        Map<String, FuncOptions> FUNCTIONS_ESCAPED = new HashMap(FUNCTIONS);
+        List<String> FUNCTIONS_ESCAPED = new ArrayList<>(FUNCTIONS.keySet());
         FUNCTIONS.keySet().parallelStream().filter(s -> ESCAPE_SET.contains(s)).forEach(s -> {
-            FUNCTIONS_ESCAPED.put("\\" + s, FUNCTIONS.get(s));
+            FUNCTIONS_ESCAPED.add("\\" + s);
             FUNCTIONS_ESCAPED.remove(s);
         });
-        if (Main.DEBUG) System.err.println("#Availible for parser functions set: " + FUNCTIONS_ESCAPED.keySet());
+        if (Main.DEBUG) System.err.println("#Availible for parser functions set: " + FUNCTIONS_ESCAPED);
         String regex =
                 "(\\d+\\.?\\d*|\\(|\\)|" +
-                FUNCTIONS_ESCAPED.keySet().parallelStream().reduce((x, xs) -> xs + "|" + x).get()
+                FUNCTIONS_ESCAPED.stream().reduce((x, xs) -> xs + "|" + x).get()
                 + "|\\" + DIVIDER + ")";
         Matcher m = Pattern.compile(regex).matcher(input);
         List<String> inputSplit = new LinkedList<>();

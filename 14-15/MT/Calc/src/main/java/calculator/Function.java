@@ -23,7 +23,7 @@ public class Function implements Node{
 
     @Override
     public Double calculate() {
-        Double[] arg = childs.parallelStream().map(Node::calculate).toArray(Double[]::new);
+        Double[] arg = childs.stream().map(Node::calculate).toArray(Double[]::new);
 
         switch (name) {
             case "sin":
