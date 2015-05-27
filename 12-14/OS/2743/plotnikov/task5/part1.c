@@ -23,12 +23,14 @@ int main() {
   pid_t process;
   
   process = fork();
+  while(1){
   if(process == 0) // read
   {
     printf("---!!! START READ !!!---\n");
     for(i=0; i<n*m*2; i++)
       scanf("%d", &array[i]);
     printf("---!!! END READ !!!---\n");
+    break;
   } else {
     waitpid(process, NULL, 0);
     process = fork();
@@ -39,6 +41,7 @@ int main() {
         for(j=0; j<m; j++)
           array[2*m*n+i*m+j] = array[i*m+j] + array[m*n+i*m+j];
       printf("---!!! SUM END !!!---\n");
+      break;
     } else {
       waitpid(process, NULL, 0);
       process = fork();
@@ -56,6 +59,7 @@ int main() {
         waitpid(process, NULL, 0);
       }
     }
+  }
   }
 
   shmdt(array); //Free memory
