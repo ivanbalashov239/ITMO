@@ -6,3 +6,6 @@ out
 gradle
 .gradle
 *.log
+*.fdb_latexmk
+*.aux
+*.fls
