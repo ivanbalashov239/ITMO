@@ -36,27 +36,33 @@ newtype Env = Env [(Symb,Type)]
 newtype SubsTy = SubsTy [(Symb, Type)]
   deriving (Eq,Show)
 
+-- Возвращает список свободных переменных терма
 freeVars :: Expr -> [Symb] 
 freeVars (Var a)    = [a]
 freeVars (a :@ b)   = (freeVars a) `union` (freeVars b)
 freeVars (Lam a e)  = filter (/= a) (freeVars e)
 
+-- Возвращает список свободных переменных типа
 freeTVars :: Type -> [Symb]
 freeTVars (TVar a)  = [a]
 freeTVars (a :-> b) = (freeTVars a) `union` (freeTVars b)
 
+-- Расширяет контекст переменной с заданным типом 
 extendEnv :: Env -> Symb -> Type -> Env
 extendEnv (Env e) a t = Env (e ++ [(a, t)])
 
+-- Возвращает список свободных типовых переменных контекста
 freeTVarsEnv :: Env -> [Symb]
 freeTVarsEnv (Env e) = foldr union [] $ map (freeTVars . snd) e 
 
+-- Вовращвет тип переменной из контекста, если она там есть
 appEnv :: (MonadError String m) => Env -> Symb -> m Type
 appEnv (Env xs) v 
     | xs == []              = throwError $ "There is no variable \"" ++ v ++ "\" in the enviroment."
     | fst (head xs) == v    = return $ snd $ head xs 
     | otherwise             = appEnv (Env $ tail xs) v
 
+-- Подставляет тип вместо переменных типа в тип
 appSubsTy :: SubsTy -> Type -> Type
 appSubsTy (SubsTy []) t = t
 appSubsTy (SubsTy list) (TVar symbol) = if(fst(head list)) == symbol
@@ -64,9 +70,11 @@ appSubsTy (SubsTy list) (TVar symbol) = if(fst(head list)) == symbol
                                         else appSubsTy (SubsTy(tail list)) (TVar symbol)
 appSubsTy subs (a:-> b) = ((appSubsTy subs a) :-> (appSubsTy subs b))
 
+-- Подставляет тип вместо переменных типа в контекст
 appSubsEnv :: SubsTy -> Env -> Env
 appSubsEnv s (Env xs) = Env $ map (\x -> (fst x, appSubsTy s (snd x))) xs
 
+-- Выполняет композицию двух подстановок
 composeSubsTy :: SubsTy -> SubsTy -> SubsTy
 composeSubsTy a b = SubsTy $ sub1 ++ (helper2 a sub1) where
     sub1 = helper1 b a 
@@ -85,7 +93,7 @@ instance Monoid SubsTy where
     mappend = composeSubsTy
     mempty  = SubsTy []
 
-
+-- Возвращает наиболее общий унификатор или сообщение об ошибке
 unify :: (MonadError String m) => Type -> Type -> m SubsTy
 unify (TVar a) (TVar b)
     | a == b = return $ SubsTy []
@@ -104,16 +112,11 @@ unify (s1 :-> s2) (t1 :-> t2) = do
                 Left err -> throwError $ err
                 Right s' -> return $ composeSubsTy s' s
 
-
-
-
-
-
-
+-- Плохая генерация нового имени для переменной
 randNumUnsafe :: (Random a, Num a) => [a]
 randNumUnsafe = unsafePerformIO $ liftM (take 6 . randomRs (10, 15)) newStdGen
 
-
+-- Построение уравнения на типы
 equations :: (MonadError String m) => Env -> Expr -> Type -> m [(Type,Type)]
 equations g (Var x) s = do
     x' <- appEnv g x
@@ -129,11 +132,13 @@ equations g (Lam x m) s = do
     e1 <- equations (extendEnv g x a) m b
     return $ e1 `union` [(a :-> b, s)]
 
+-- Решение одного уравнения
 solveOne :: (Type, Type) -> SubsTy
 solveOne (a,b) = do
     let Right ans = unify a b
     ans
 
+-- Поиск главной пары
 principlePair :: (MonadError String m) =>  Expr -> m (Env,Type)
 principlePair exp = do
     let env = Env $ map (\x -> (x,TVar $ x ++ "'")) (freeVars exp)
