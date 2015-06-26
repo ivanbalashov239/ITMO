@@ -1,6 +1,8 @@
 .idea
 *.iml
 *.swp
+*.swo
+*.exe
 build
 out
 gradle
