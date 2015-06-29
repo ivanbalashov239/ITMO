@@ -141,3 +141,9 @@ let Right ans = principlePair (Lam "x" $ Lam "y" $ Var "y") in ans
 λ> let Left ans = principlePair (Var "x" :@ Var "x") in ans
 "Can't unify  (\"fcbcef\") with (TVar \"fcbcef\" :-> TVar \"becaee\")!"
 ```
+
+## Список литературы
+* Курс виео-лекций Москвина Д. Н.
+* ["О haskell по-человечески"](http://www.twitch.tv/317070) - Денис Шевченко
+* ["Learn Haskell Fast and Hard"](http://yannesposito.com/Scratch/en/blog/Haskell-the-Hard-Way/)
+* ["Learn You a Haskell for Great Good!"](http://learnyouahaskell.com/)
